@@ -1,8 +1,11 @@
 import json
+import os
 
+raw_dir = "../datasets/before"
 
-def main():
-    json_origin = 'aachen_000000_000019_gtCoarse_polygons.json'
+def json_convertor(filename):
+
+    json_origin = os.path.join(raw_dir,filename)
     new_content = {}
     with open(json_origin, 'r') as f:
         new_content['version'] = '3.16.7'
@@ -26,13 +29,19 @@ def main():
             0,
             128
         ]
-        new_content['imagePath']=json_origin
-        new_content['imageData']=""
-        new_content["imageHeight"]=origin_content['imgHeight']
-        new_content["imageWidth"]=origin_content['imgWidth']
-    with open('new.json','w+') as f:
+        new_content['imagePath'] = json_origin
+        new_content['imageData'] = raw_dir
+        new_content["imageHeight"] = origin_content['imgHeight']
+        new_content["imageWidth"] = origin_content['imgWidth']
+    with open('new.json', 'w+') as f:
 
-        json.dump(new_content,f)
+        json.dump(new_content, f)
+def png_convertor(filename):
+    pass
+def main():
+    files=os.listdir(raw_dir)
+    json_files=[]
+    png_files=[]
 
 if __name__ == "__main__":
     main()
