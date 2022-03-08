@@ -3,7 +3,9 @@ import os
 import PIL
 import numpy as np
 from labelme.utils import img_arr_to_b64
+import threading
 import base64
+
 raw_dir = "./dataset/before"
 converted_path = "./dataset/converted"
 
@@ -40,12 +42,11 @@ def json_convertor(filename):
             img_arr = np.array(img)
         except:
             print('err')
-        new_content['imageData'] = str(img_arr_to_b64(img_arr),'utf-8')
+        new_content['imageData'] = str(img_arr_to_b64(img_arr), 'utf-8')
         new_content["imageHeight"] = origin_content['imgHeight']
         new_content["imageWidth"] = origin_content['imgWidth']
     print(filename)
-    with open(os.path.join(converted_path,image_name.replace('.png','.json')), 'w+') as f:
-
+    with open(os.path.join(converted_path, image_name.replace('.png', '.json')), 'w+') as f:
         json.dump(new_content, f)
 
 
@@ -83,17 +84,26 @@ def png_convertor():
 
 
 def main():
+    thread_list = []
     files = os.listdir(raw_dir)
     json_files = []
     png_files = []
-    # png_convertor()
+    thread_png=threading.Thread(target=png_convertor)
+    thread_list.append(thread_png)
+    if not os.path.exists(converted_path):
+        os.mkdir(converted_path)
     for item in files:
         if len(item.split('.')) == 2:
             if item.split('.')[1] == 'png':
                 png_files.append(item)
             elif item.split('.')[1] == 'json':
                 json_files.append(item)
-                json_convertor(item)
+                thread = threading.Thread(target=json_convertor, args=[item])
+                thread.start()
+                thread_list.append(thread)
+    for thread in thread_list:
+        thread.join()
+    print('完成转换')
 
 
 if __name__ == "__main__":
